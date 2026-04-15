@@ -19,4 +19,14 @@ export class AuthService {
         return this.repo.save(user)
     }
 
+
+    async login(email:string, password:string) {
+        const user = await this.repo.findOneBy({ email })
+        if(!user) throw new Error('Usuário não encontrado')
+
+        const valid = await bcrypt.compare(password, user.password)
+        if(!valid) throw new Error('Senha incorreta')
+
+        return user
+    }
 }

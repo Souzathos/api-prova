@@ -5,5 +5,5 @@ const userRoutes = Router()
 const auth = new AuthController()
 
 userRoutes.post('/register', auth.register.bind(auth))
-
+userRoutes.post('/login', auth.login.bind(auth))
 export default userRoutes

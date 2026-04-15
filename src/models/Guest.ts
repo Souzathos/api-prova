@@ -7,7 +7,7 @@ export class Guest{
     id:number
 
     @Column({length:100, nullable: false})
-    nome:string
+    name:string
 
     @Column({unique: true, length:100, nullable:false})
     email:string
