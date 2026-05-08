@@ -73,15 +73,15 @@ export class GuestService {
         // total de guests
         const total = guests.length
         // filtra os confirmados
-        const confirmed = guests.filter(g => g.checkin).length
+        const checked_in = guests.filter(g => g.checkin).length
         // numero de pendentes
-        const pending = total - confirmed
+        const pending = total - checked_in
 
-        const occupancy = total === 0 ? 0 : Number(((confirmed / total ) * 100 ).toFixed(2))
+        const occupancy = total === 0 ? 0 : Number(((checked_in / total ) * 100 ).toFixed(2))
 
         return {
             total, 
-            confirmed,
+            checked_in,
             pending,
             occupancy
         }
