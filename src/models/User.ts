@@ -1,28 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { CheckIn } from "./CheckIn";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
-export class User{ 
+export class User {
     @PrimaryGeneratedColumn()
-    id:number
+    id: number
 
-    @Column({length:100, nullable: false})
-    name:string
+    @Column({nullable: false, length: 255})
+    name: string
 
-    @Column({unique: true, length:100, nullable:false})
-    email:string
+    @Column({nullable: false, length: 255, unique: true})
+    email: string
 
-    @Column({unique: true, length:11, nullable:false})
-    cpf:string
+     @Column({nullable: false, length: 11, unique: true})
+    cpf: string
 
-    @Column({length:255, nullable:false})
-    password:string
+    @Column({nullable: false, length: 255})
+    password: string
 
-    @Column({nullable:false})
+    @Column({nullable: false})
     role: 'admin' | 'recepcionista'
-    
-    // 1º argumento -> uma arrow function (sem chaves) que retorna a entidade relacionada
-    // 2º argumento -> uma arrow function (sem chaves) que recebe o atributo da entidade relacionada e indica que chave liga na tabela (chave estrangeira)
-    @OneToMany(() => CheckIn, (checkin) => checkin.user)
-    checkins: CheckIn[]
 }

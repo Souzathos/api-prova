@@ -1,90 +1,71 @@
 import { Like } from "typeorm";
-import { AppDataSource } from "../config/dataSource";
-import { CheckIn } from "../models/CheckIn";
+import { AppDataSource } from "../config/data-source";
 import { Guest } from "../models/Guest";
-import { User } from "../models/User";
 
 export class GuestService {
     private repo = AppDataSource.getRepository(Guest)
-    private userRepo = AppDataSource.getRepository(User)
-    private checkInRepo = AppDataSource.getRepository(CheckIn)
 
-    // name opcional
+    async register(data: any) {
+        const exists = await this.repo.findOne({where: {email: data.email}})
+        if(exists) throw new Error('Email ja cadastrado')
+        const cpfExists = await this.repo.findOne({where: {cpf: data.cpf}})
+        if(cpfExists) throw new Error('CPF ja cadastrado')
+
+        const guest = this.repo.create(data)
+
+        return this.repo.save(guest)
+    }
+
     async list(name?: string) {
         const guests = await this.repo.find({
-            where: name ? { name: Like(`%${name}%`) } : {},
-            relations: ['checkin']
+            where: name ? {name: Like(`%${name}%`)} : {}
         })
 
-
-        return guests.map(g => ({
-            ...g,
-            checked_in: !!g.checkin
-        }))
+        return guests
     }
 
-    async create(data: any) {
-        const exists = await this.repo.findOneBy({ cpf: data.cpf })
-        const userExists = await this.userRepo.findOneBy({ cpf: data.cpf })
-        if (exists || userExists) throw new Error('CPF ja cadastrado')
 
-        return this.repo.save(this.repo.create(data))
+    async update(guestId: number, data: any) {
+        const exists = await this.repo.findOneBy({id: guestId})
+        if(!exists) throw new Error('Convidado nao encontrado')
+
+        await this.repo.update(guestId, data)
+        return this.repo.findOne({where: {id: guestId}})
     }
 
-    async update(id: number, data: any) {
-        await this.repo.update(id, data)
-        return this.repo.findOne({
-            where: { id },
-            relations: ['checkin']
-        })
-    }
-
-    async checkin(guestId:number, user: any) {
-        const guest = await this.repo.findOneBy({id: guestId})
-        if(!guest) throw new Error('Convidado não encontrado')
-
-        const exists = await this.checkInRepo.findOne({
-            where: {guest: {id: guestId}}
-        })
-
-        if(exists) throw new Error('Check-in já realizado') 
-        
-        const checkin = this.checkInRepo.create({
-            guest, //convidado
-            user // staff responsavel
-        })
-
-        return this.checkInRepo.save(checkin)
-    }
-
-    async delete(id:number) {
-        const guest = await this.repo.findOneBy({id})
-        if(!guest) throw new Error('Convidado não encontrado')
+    async delete(id: number) {
+         const exists = await this.repo.findOneBy({id})
+        if(!exists) throw new Error('Convidado nao encontrado')
 
         await this.repo.delete(id)
     }
 
-    async dashboard() {
-        // da um find em todos os guests
-        const guests = await this.repo.find({
-            relations: ['checkin']
-        })
+    async checkin(id: number, user: any) {
+        const guest = await this.repo.findOneBy({id})
+        if(!guest) throw new Error('Convidado nao encontrado')
+        if(guest.checked_in) throw new Error('Checkin ja realizado ')
+        
+        guest.checked_in = true
 
-        // total de guests
+        return this.repo.save(guest)
+    }
+
+    async dashboard() {
+        const guests = await this.repo.find()
+
         const total = guests.length
-        // filtra os confirmados
-        const checked_in = guests.filter(g => g.checkin).length
-        // numero de pendentes
+
+        const checked_in = guests.filter(g => g.checked_in).length
+
         const pending = total - checked_in
 
-        const occupancy = total === 0 ? 0 : Number(((checked_in / total ) * 100 ).toFixed(2))
+        const occupancy = total === 0 ? 0 : Number(((checked_in/total) * 100)).toFixed(2)
 
         return {
-            total, 
-            checked_in,
-            pending,
+            total,
+            checked_in, 
+            pending, 
             occupancy
         }
     }
-
 }

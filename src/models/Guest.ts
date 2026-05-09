@@ -1,26 +1,25 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { CheckIn } from "./CheckIn";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('guests')
-export class Guest{ 
+export class Guest {
     @PrimaryGeneratedColumn()
-    id:number
+    id: number
 
-    @Column({length:100, nullable: false})
-    name:string
+    @Column({nullable: false, length: 255})
+    name: string
 
-    @Column({unique: true, length:100, nullable:false})
-    email:string
+    @Column({nullable: false, length: 255, unique: true})
+    email: string
 
-    @Column({unique: true, length:11, nullable:false})
-    cpf:string
+     @Column({nullable: false, length: 11, unique: true})
+    cpf: string
 
-    @Column({nullable: false, unique: true})
-    phone:string
+    @Column({nullable: false, length: 11})
+    phone: string
 
-    @Column({nullable:false})
+    @Column({nullable: false})
     table_number: number
 
-    @OneToOne(() => CheckIn, (checkin) => checkin.guest)
-    checkin: CheckIn
+    @Column({default: false})
+    checked_in: boolean
 }

@@ -1,22 +1,20 @@
 import express from 'express'
-import { AppDataSource } from './config/dataSource'
-import routes from './routes'
 import * as dotenv from 'dotenv'
 import cors from 'cors'
+import { AppDataSource } from './config/data-source'
+import routes from './routes'
 
-
-dotenv.config()
-const port = process.env.PORT
 const app = express()
-/* app.use(cors({origin: "http://localhost:5174"})) */
-app.use(cors())
 
 app.use(express.json())
+app.use(cors())
+dotenv.config()
+app.use(routes)
+const port = Number(process.env.PORT)
+
 
 AppDataSource.initialize().then(() => {
-    console.log('banco bombando')
-
-    app.use(routes)
+    console.log(`Banco conectado`)
 
     app.listen(port, () => {
         console.log(`Servidor rodando na porta ${port}`)

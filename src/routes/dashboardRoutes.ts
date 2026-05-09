@@ -1,12 +1,10 @@
-import {Router} from 'express'
-import { GuestController } from '../controllers/GuestControlelr'
-import { authMiddleware } from '../middlewares/authMiddleware'
-import { roleMiddleware } from '../middlewares/roleMiddlewares'
+import { Router } from "express";
+import { GuestController } from "../controllers/GuestController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
+const dashboardRoutes = Router()
+const controller = new GuestController()
 
-const dashRoutes = Router()
-const guest = new GuestController()
+dashboardRoutes.get('/', authMiddleware, controller.dashboard.bind(controller))
 
-dashRoutes.get('/', authMiddleware, roleMiddleware('admin'), guest.dashboard.bind(guest))
-
-export default dashRoutes
+export default dashboardRoutes
