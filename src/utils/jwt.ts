@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv'
 
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN
+dotenv.config()
+
+const JWT_EXPIRES_IN = Number(process.env.JWT_EXPIRES_IN) || 86400
 const JWT_SECRET = process.env.JWT_SECRET
 
 export const generateToken = (payload: object) => {
